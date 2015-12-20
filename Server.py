@@ -3,6 +3,8 @@ import threading
 
 RegisteredUsers = []
 Demanders = []
+index = 0
+requesterName = ""
 serverport = 12000
 serversocket = socket(AF_INET , SOCK_STREAM )
 serversocket.bind((gethostname(), serverport))
@@ -43,7 +45,7 @@ def Bye(addr):
 def StreamRequest(addr , Filename):
     print "We are in Stream Request function !"
     flag = False
-    requesterName = ""
+    global requesterName
     for i in range(len(RegisteredUsers)):
         if(RegisteredUsers[i][2] == addr):
             requesterName = RegisteredUsers[i][0]
@@ -63,11 +65,17 @@ def StreamRequest(addr , Filename):
 
 
 # ---------------------------------------------------------------------------------------
+def startChainingProcess(requesterSocket):
+    print "we are in this function with this Socket !"
+    print requesterName
+    print requesterSocket
+# ---------------------------------------------------------------------------------------
 def main(connectedsocket , addr):
     while True:
         print "in main"
         global RegisteredUsers
         global Demanders
+        global index
         clientCommand = connectedsocket.recv(1024)
         if(clientCommand[0:4] == "Reg#"):
             Clientname = clientCommand[4:]
@@ -96,8 +104,19 @@ def main(connectedsocket , addr):
             ClientUdpPort = clientCommand[5:]
             print "client with port" , ClientUdpPort , "accepted !"
             Demanders.append(ClientUdpPort)
-            connectedsocket.send("ok , I will send U!")
+            index += 1
+            requesterSocket = ""
+            if(index == len(RegisteredUsers)-1 ):
+                for i in range(len(RegisteredUsers)):
+                    if(RegisteredUsers[i][0] != requesterName):
+                        continue
+                    else:
+                        requesterSocket = RegisteredUsers[i][1]
+                        break
+                startChainingProcess(requesterSocket)
+            # connectedsocket.send("ok , I will send U!")
         elif(clientCommand[0:4] == "NOPE"):
+            index += 1
             connectedsocket.send("ok , I wont send U!")
         else:
             connectedsocket.send("Sorry! Not right now !")
