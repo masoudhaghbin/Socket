@@ -9,7 +9,7 @@ serversocket.listen(3)
 print "server is running "
 
 # --------------------------------------------------------------------------------------
-def register(name , socket , addr):
+def register(name , Mysocket , addr):
     flag = True
     global RegisteredUsers
     for i in range(len(RegisteredUsers)):
@@ -20,7 +20,7 @@ def register(name , socket , addr):
             continue
     if(flag):
         print "In register function !"
-        RegisteredUsers.append([name , socket , addr])
+        RegisteredUsers.append([name , Mysocket , addr])
         print "Registerd users :" ,
         print RegisteredUsers
     return flag
@@ -54,7 +54,7 @@ def StreamRequest(addr , Filename):
     if(flag):
         for i in range(len(RegisteredUsers)):
             if(RegisteredUsers[i][0] != requesterName):
-                RegisteredUsers[i][1].send("hey bitch !")
+                RegisteredUsers[i][1].send("NewStream#"+Filename)
             else:
                 continue
     else:
@@ -99,7 +99,7 @@ def main(connectedsocket , addr):
 while True:
         connectionsocket , addr = serversocket.accept()
         print "Got Connection from " , addr
-        threading.Thread(target=main , args=(connectionsocket , addr)).start()
+        threading.Thread(target=main , args=(connectionsocket , addr ,)).start()
         # print "Im back here!"
         # print "Got Connection from " , addr
         # clientCommand = connectionsocket.recv(1024)
@@ -115,3 +115,4 @@ while True:
 
 
 
+#for Break
