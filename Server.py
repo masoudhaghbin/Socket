@@ -2,6 +2,7 @@ from socket import *
 import threading
 
 RegisteredUsers = []
+Demanders = []
 serverport = 12000
 serversocket = socket(AF_INET , SOCK_STREAM )
 serversocket.bind((gethostname(), serverport))
@@ -66,6 +67,7 @@ def main(connectedsocket , addr):
     while True:
         print "in main"
         global RegisteredUsers
+        global Demanders
         clientCommand = connectedsocket.recv(1024)
         if(clientCommand[0:4] == "Reg#"):
             Clientname = clientCommand[4:]
@@ -90,6 +92,13 @@ def main(connectedsocket , addr):
             Filename = clientCommand[10:]
             addr = connectedsocket.getpeername()
             StreamRequest(addr , Filename)
+        elif(clientCommand[0:4] == "YEAH"):
+            ClientUdpPort = clientCommand[5:]
+            print "client with port" , ClientUdpPort , "accepted !"
+            Demanders.append(ClientUdpPort)
+            connectedsocket.send("ok , I will send U!")
+        elif(clientCommand[0:4] == "NOPE"):
+            connectedsocket.send("ok , I wont send U!")
         else:
             connectedsocket.send("Sorry! Not right now !")
         # connectedsocket.close()
