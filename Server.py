@@ -1,5 +1,6 @@
 from socket import *
 import threading
+import time
 
 RegisteredUsers = []
 Demanders = []
@@ -167,6 +168,7 @@ def main(connectedsocket , addr):
         elif(clientCommand[0:4] == "GOT#"):
             if(chainindex<len(Demanders) -1 ):
                 chainindex+=1
+                time.sleep(1)
                 connectedsocket.send("Stream#"+Demanders[chainindex])
             else:
                 requesterSocket.send("StreamReq#DONE")

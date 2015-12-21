@@ -12,21 +12,26 @@ clientUDPsocket = socket(AF_INET , SOCK_DGRAM )
 clientUDPsocket.bind((servername, UDP_Port))
 
 def listen(Mysocket):
+	global filename
 	print "we are in listen area !"
 	while True:
 		servermessage = Mysocket.recv(1024)
 		print "From Server : " , servermessage
 		if(servermessage[0:10] == "NewStream#"):
+			filename = servermessage[10:]
 			print "new Stream Recieved !"
 			print "Do You Want this file ? "
 		elif(servermessage[0:10] == "StreamReq#"):
 			 print "Here :" , servermessage 
 		elif(servermessage[0:7] == "Stream#"):
-			# print "Im here !"
+			print "Im here in the listen function elif !"
 			Next_UDP_Port = int(servermessage[7:])
-			# print "Next port is ", Next_UDP_Port
+			print "Next port is ", Next_UDP_Port
+			print "filename is : " , filename
 			myFile = open(filename , 'rb')
 			message = myFile.read()
+			myFile.close()
+			print "message is :" , message
 			clientUDPsocket.sendto(message,(servername , Next_UDP_Port))
 			# print "sent!"
 			# choice = raw_input("Do you want the file ?")
@@ -41,13 +46,16 @@ def listen(Mysocket):
 # 		Command = raw_input(option)
 # 		Mysocket.send(Command)
 def UDPfunc():
+	global filename
 	while True:
 	# print "Thread running"
-		modifiedmessage , serveraddress = clientUDPsocket.recvfrom(2048)
+		modifiedmessage , serveraddress = clientUDPsocket.recvfrom(65535)
+		print "in udp listening ... :" , modifiedmessage
 		# filename_got = str(UDP_Port)+filename
-		# gotfile = open(filename_got , 'wb')
-		# gotfile.write(modifiedmessage)
-		print modifiedmessage
+		gotfile = open(filename , 'wb')
+		gotfile.write(modifiedmessage)
+		gotfile.close()
+		print "File is now closed!"
 		clientsocket.send("GOT#")
 
 threading.Thread(target=listen , args=(clientsocket,)).start()
