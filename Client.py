@@ -2,6 +2,7 @@ from socket import *
 import threading
 from random import randint
 
+BUFF_SIZE = 128
 filename = ""
 servername = gethostname()
 serverport = 12000
@@ -12,6 +13,7 @@ clientUDPsocket = socket(AF_INET , SOCK_DGRAM )
 clientUDPsocket.bind((servername, UDP_Port))
 
 def listen(Mysocket):
+	global BUFF_SIZE
 	global filename
 	print "we are in listen area !"
 	while True:
@@ -29,10 +31,16 @@ def listen(Mysocket):
 			print "Next port is ", Next_UDP_Port
 			print "filename is : " , filename
 			myFile = open(filename , 'rb')
-			message = myFile.read()
+			message = myFile.read(BUFF_SIZE)
+			while(message):
+				message=myFile.read(BUFF_SIZE)
+				print "sending " , message
+				clientUDPsocket.sendto(message,(servername , Next_UDP_Port))
+			# print "Got out of while"
+			# clientUDPsocket.sendto("##&&##" ,(servername , Next_UDP_Port))
 			myFile.close()
-			print "message is :" , message
-			clientUDPsocket.sendto(message,(servername , Next_UDP_Port))
+			# print "message is :" , message
+			
 			# print "sent!"
 			# choice = raw_input("Do you want the file ?")
 			# print "this is my choice :" , choice
@@ -49,11 +57,17 @@ def UDPfunc():
 	global filename
 	while True:
 	# print "Thread running"
-		modifiedmessage , serveraddress = clientUDPsocket.recvfrom(65535)
-		print "in udp listening ... :" , modifiedmessage
+		modifiedmessage , serveraddress = clientUDPsocket.recvfrom(BUFF_SIZE)
+		print "in udp listening ... :" , modifiedmessage , "-----------",modifiedmessage[0]
 		# filename_got = str(UDP_Port)+filename
 		gotfile = open(filename , 'wb')
-		gotfile.write(modifiedmessage)
+		print "before while"
+		while(modifiedmessage[0]):
+			print "in the while"
+			print "recieved message :" , modifiedmessage
+			gotfile.write(modifiedmessage[0])
+			modifiedmessage = clientUDPsocket.recvfrom(BUFF_SIZE)
+		gotfile.write(modifiedmessage[0])
 		gotfile.close()
 		print "File is now closed!"
 		clientsocket.send("GOT#")
