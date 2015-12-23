@@ -27,7 +27,7 @@ def register(name , Mysocket , addr):
         else:
             continue
     if(flag):
-        print "In register function !"
+        # print "In register function !"
         RegisteredUsers.append([name , Mysocket , addr])
         print "Registerd users :" ,
         print RegisteredUsers
@@ -48,7 +48,7 @@ def Bye(addr):
     return flag 
 # ---------------------------------------------------------------------------------------
 def StreamRequest(addr , Filename):
-    print "We are in Stream Request function !"
+    # print "We are in Stream Request function !"
     flag = False
     global requesterName
     global CanbeStream
@@ -75,7 +75,7 @@ def StreamRequest(addr , Filename):
 
 # ---------------------------------------------------------------------------------------
 def startChainingProcess(requesterSocket):
-    print "we are in this function with this Socket !"
+    # print "we are in this function with this Socket !"
     # print requesterName
     # print requesterSocket
     global chainindex
@@ -83,7 +83,7 @@ def startChainingProcess(requesterSocket):
 # ---------------------------------------------------------------------------------------
 def main(connectedsocket , addr):
     while True:
-        print "in main"
+        # print "in main"
         global RegisteredUsers
         global Demanders
         global index
@@ -95,15 +95,15 @@ def main(connectedsocket , addr):
         if(clientCommand[0:4] == "Reg#"):
             Clientname = clientCommand[4:]
             result = register(Clientname , connectedsocket , addr)
-            print "result is " ,
-            print result
+            # print "result is " ,
+            # print result
             if(result):
                 connectedsocket.send("Reg#OK")
                 print "RegisteredUsers are :" , RegisteredUsers
             else:
                 connectedsocket.send("Reg#NOK#NameUsedBeforeOrSameClient")
         elif(clientCommand[0:3] == "Bye"):
-            print "main -> second elif"
+            # print "main -> second elif"
             addr = connectedsocket.getpeername()
             result = Bye(addr)
             if(result):
@@ -168,7 +168,7 @@ def main(connectedsocket , addr):
         elif(clientCommand[0:4] == "GOT#"):
             if(chainindex<len(Demanders) -1 ):
                 chainindex+=1
-                time.sleep(1)
+                time.sleep(2)
                 connectedsocket.send("Stream#"+Demanders[chainindex])
             else:
                 requesterSocket.send("StreamReq#DONE")
